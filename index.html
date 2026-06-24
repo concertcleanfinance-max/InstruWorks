@@ -236,6 +236,40 @@
       --status-completed-text: #34d399;
     }
 
+    /* CUSTOM THEMING SUPPORT */
+    body.theme-custom {
+      --bg-primary: var(--custom-bg-primary, #0a0b0d);
+      --bg-secondary: var(--custom-bg-secondary, #12141a);
+      --bg-tertiary: var(--custom-bg-tertiary, #1b1e26);
+      
+      --accent-gold: var(--custom-accent-gold, #c5a059);
+      --accent-gold-light: var(--custom-accent-gold-light, #dfc28c);
+      --accent-gold-glow: var(--custom-accent-gold-glow, rgba(197, 160, 89, 0.15));
+      
+      --text-primary: var(--custom-text-primary, #ffffff);
+      --text-secondary: var(--custom-text-secondary, #d1d5db);
+      --text-muted: var(--custom-text-muted, #9ca3af);
+      
+      --border-subtle: var(--custom-border-subtle, #374151);
+      --border-gold: var(--custom-border-gold, rgba(197, 160, 89, 0.45));
+
+      /* Status Colors (pastels for high contrast dark context) */
+      --status-received-bg: rgba(156, 163, 175, 0.15);
+      --status-received-text: #cbd5e1;
+      --status-inspection-bg: rgba(59, 130, 246, 0.15);
+      --status-inspection-text: #93c5fd;
+      --status-parts-bg: rgba(239, 68, 68, 0.20);
+      --status-parts-text: #fca5a5;
+      --status-progress-bg: rgba(245, 158, 11, 0.15);
+      --status-progress-text: #fde047;
+      --status-testing-bg: rgba(139, 92, 246, 0.15);
+      --status-testing-text: #c4b5fd;
+      --status-ready-bg: rgba(16, 185, 129, 0.15);
+      --status-ready-text: #6ee7b7;
+      --status-completed-bg: rgba(16, 185, 129, 0.25);
+      --status-completed-text: #34d399;
+    }
+
     /* Global Reset & Basic Setup */
     * {
       box-sizing: border-box;
@@ -1534,6 +1568,12 @@
     // Custom Icon Renderer (Fully Offline/Self-Contained)
     const Icon = ({ name, size = 18, className = '', style = {} }) => {
       const icons = {
+        history: (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        ),
         wrench: (
           <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
@@ -1655,6 +1695,19 @@
             <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
             <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
           </svg>
+        ),
+        trendingup: (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+            <polyline points="16 7 22 7 22 13" />
+          </svg>
+        ),
+        barchart: (
+          <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
         )
       };
       return icons[name.toLowerCase()] || null;
@@ -1664,9 +1717,8 @@
     /* =========================================================================
        1. REPAIRS PAGE COMPONENT
        ========================================================================= */
-    function RepairsPage({ repairs, inventory, setInventory, clients, onSaveRepair, onDeleteRepair, onGenerateInvoice, instrumentLibrary, onUpdateInstrumentLibrary, activeUser, users, statusColumns, setStatusColumns }) {
+    function RepairsPage({ repairs, inventory, setInventory, clients, onSaveRepair, onDeleteRepair, onGenerateInvoice, instrumentLibrary, onUpdateInstrumentLibrary, activeUser, users, statusColumns, setStatusColumns, instrumentFilter, setInstrumentFilter }) {
       const [searchTerm, setSearchTerm] = React.useState('');
-      const [instrumentFilter, setInstrumentFilter] = React.useState('All');
       
       const [isIntakeOpen, setIsIntakeOpen] = React.useState(false);
       const [selectedRepair, setSelectedRepair] = React.useState(null);
@@ -1697,6 +1749,7 @@
         clientEmail: '',
         serialNumber: '',
         schoolPo: '',
+        schoolInstrumentNumber: '',
         issues: '',
         notes: '',
         laborHours: 1,
@@ -1710,6 +1763,7 @@
       const [editLaborHours, setEditLaborHours] = React.useState(0);
       const [editAssignedTech, setEditAssignedTech] = React.useState('Unassigned');
       const [editSchoolPo, setEditSchoolPo] = React.useState('');
+      const [editSchoolInstrumentNumber, setEditSchoolInstrumentNumber] = React.useState('');
       const [selectedProductToAdd, setSelectedProductToAdd] = React.useState('');
       const [productAddQty, setProductAddQty] = React.useState(1);
       const [partSearchText, setPartSearchText] = React.useState('');
@@ -1784,6 +1838,7 @@
         setEditLaborHours(repair.laborHours || 0);
         setEditAssignedTech(repair.assignedTech || 'Unassigned');
         setEditSchoolPo(repair.schoolPo || '');
+        setEditSchoolInstrumentNumber(repair.instrument?.schoolInstrumentNumber || '');
         setActiveModalTab('details');
       };
 
@@ -1830,7 +1885,8 @@
             type: finalType || 'Unknown Type',
             make: finalMake || 'Generic',
             model: finalModel || 'Standard',
-            serialNumber: intakeForm.serialNumber
+            serialNumber: intakeForm.serialNumber,
+            schoolInstrumentNumber: intakeForm.schoolInstrumentNumber || ''
           },
           schoolPo: intakeForm.schoolPo || '',
           issues: intakeForm.issues.split('\n').filter(i => i.trim() !== ''),
@@ -1893,6 +1949,7 @@
           clientEmail: '',
           serialNumber: '',
           schoolPo: '',
+          schoolInstrumentNumber: '',
           issues: '',
           notes: '',
           laborHours: 1,
@@ -2052,6 +2109,9 @@
         if (selectedRepair.schoolPo !== editSchoolPo) {
           changes.push(`School PO changed from "${selectedRepair.schoolPo || ''}" to "${editSchoolPo}"`);
         }
+        if ((selectedRepair.instrument?.schoolInstrumentNumber || '') !== editSchoolInstrumentNumber) {
+          changes.push(`School Instrument # changed from "${selectedRepair.instrument?.schoolInstrumentNumber || ''}" to "${editSchoolInstrumentNumber}"`);
+        }
 
         const updatedHistory = [...(selectedRepair.history || [])];
         if (changes.length > 0) {
@@ -2070,6 +2130,10 @@
           history: updatedHistory,
           laborHours: parseFloat(editLaborHours) || 0,
           schoolPo: editSchoolPo,
+          instrument: {
+            ...(selectedRepair.instrument || {}),
+            schoolInstrumentNumber: editSchoolInstrumentNumber
+          },
           estimatedCost: getUpdatedCost(parseFloat(editLaborHours) || 0, selectedRepair.laborRate, selectedRepair.partsUsed || [], selectedRepair.servicesUsed || [])
         };
         onSaveRepair(updatedRepair);
@@ -2563,6 +2627,16 @@
                           onChange={(e) => setIntakeForm({...intakeForm, schoolPo: e.target.value})}
                         />
                       </div>
+                      <div className="form-group">
+                        <label>School Instrument # (Optional)</label>
+                        <input 
+                          type="text" 
+                          className="input-control" 
+                          placeholder="e.g. SCH-TRUMPET-04"
+                          value={intakeForm.schoolInstrumentNumber || ''}
+                          onChange={(e) => setIntakeForm({...intakeForm, schoolInstrumentNumber: e.target.value})}
+                        />
+                      </div>
                     </div>
 
                     {selectedType !== 'Other' && selectedMake === 'Other' && (
@@ -2734,6 +2808,7 @@
                           <p><strong>Type:</strong> {selectedRepair.instrument?.type || 'Unknown'}</p>
                           <p><strong>Make/Model:</strong> {selectedRepair.instrument?.make || ''} - {selectedRepair.instrument?.model || ''}</p>
                           <p><strong>Serial:</strong> {selectedRepair.instrument?.serialNumber || '-'}</p>
+                          <p><strong>School Instrument #:</strong> {selectedRepair.instrument?.schoolInstrumentNumber || 'None'}</p>
                           <p><strong>School PO#:</strong> {selectedRepair.schoolPo || 'None'}</p>
                         </div>
                       </div>
@@ -2796,7 +2871,7 @@
                         </div>
                       </div>
 
-                      <div className="form-row" style={{ marginTop: '12px' }}>
+                      <div className="form-row" style={{ marginTop: '12px', gap: '12px' }}>
                         <div className="form-group">
                           <label>School PO#</label>
                           <input 
@@ -2805,6 +2880,16 @@
                             value={editSchoolPo || ''}
                             onChange={(e) => setEditSchoolPo(e.target.value)}
                             placeholder="Enter PO number if applicable..."
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>School Instrument #</label>
+                          <input 
+                            type="text" 
+                            className="input-control" 
+                            value={editSchoolInstrumentNumber || ''}
+                            onChange={(e) => setEditSchoolInstrumentNumber(e.target.value)}
+                            placeholder="Enter School Instrument # if applicable..."
                           />
                         </div>
                       </div>
@@ -3210,7 +3295,7 @@
     /* =========================================================================
        2. INVENTORY PAGE COMPONENT
        ========================================================================= */
-    function InventoryPage({ inventory, setInventory, onLogSale }) {
+    function InventoryPage({ inventory, setInventory, onLogSale, stockHistory, setStockHistory, activeUser }) {
       const [searchTerm, setSearchTerm] = React.useState('');
       const [categoryFilter, setCategoryFilter] = React.useState('All');
       const [supplierFilter, setSupplierFilter] = React.useState('All');
@@ -3243,6 +3328,151 @@
       React.useEffect(() => {
         setCurrentPage(1);
       }, [searchTerm, categoryFilter, supplierFilter]);
+
+      // Batch update modals & states
+      const [isReceiveModalOpen, setIsReceiveModalOpen] = React.useState(false);
+      const [isStockTakeModalOpen, setIsStockTakeModalOpen] = React.useState(false);
+      const [isHistoryModalOpen, setIsHistoryModalOpen] = React.useState(false);
+      const [historySearch, setHistorySearch] = React.useState('');
+      
+      const [receiveSearchText, setReceiveSearchText] = React.useState('');
+      const [showReceiveSuggestions, setShowReceiveSuggestions] = React.useState(false);
+      const [selectedReceiveProduct, setSelectedReceiveProduct] = React.useState(null);
+      const [receiveQty, setReceiveQty] = React.useState('');
+
+      const [stockTakeSearchText, setStockTakeSearchText] = React.useState('');
+      const [showStockTakeSuggestions, setShowStockTakeSuggestions] = React.useState(false);
+      const [selectedStockTakeProduct, setSelectedStockTakeProduct] = React.useState(null);
+      const [stockTakeQty, setStockTakeQty] = React.useState('');
+
+      const suggestedReceiveProducts = React.useMemo(() => {
+        if (!receiveSearchText.trim()) return [];
+        const lower = receiveSearchText.toLowerCase();
+        return inventory.filter(p => 
+          (p.sku || '').toLowerCase().includes(lower) || 
+          (p.name || '').toLowerCase().includes(lower)
+        ).slice(0, 10);
+      }, [receiveSearchText, inventory]);
+
+      const suggestedStockTakeProducts = React.useMemo(() => {
+        if (!stockTakeSearchText.trim()) return [];
+        const lower = stockTakeSearchText.toLowerCase();
+        return inventory.filter(p => 
+          (p.sku || '').toLowerCase().includes(lower) || 
+          (p.name || '').toLowerCase().includes(lower)
+        ).slice(0, 10);
+      }, [stockTakeSearchText, inventory]);
+
+      const logStockAdjustment = (product, type, prevStock, newStock) => {
+        const newRecord = {
+          id: `ADJ-${Date.now().toString().slice(-4)}-${Math.floor(Math.random() * 100)}`,
+          timestamp: new Date().toISOString(),
+          sku: product.sku,
+          name: product.name,
+          type, // 'Receive' or 'Stock Take'
+          prevStock: parseInt(prevStock) || 0,
+          newStock: parseInt(newStock) || 0,
+          user: activeUser ? activeUser.name : 'System'
+        };
+        setStockHistory(prev => [newRecord, ...prev]);
+      };
+
+      const filteredHistory = React.useMemo(() => {
+        const list = stockHistory || [];
+        if (!historySearch.trim()) return list;
+        const lower = historySearch.toLowerCase();
+        return list.filter(r => 
+          (r.sku || '').toLowerCase().includes(lower) || 
+          (r.name || '').toLowerCase().includes(lower) || 
+          (r.type || '').toLowerCase().includes(lower) ||
+          (r.user || '').toLowerCase().includes(lower)
+        );
+      }, [stockHistory, historySearch]);
+
+      const formatDate = (isoString) => {
+        if (!isoString) return 'N/A';
+        try {
+          const d = new Date(isoString);
+          if (isNaN(d.getTime())) return 'N/A';
+          return d.toLocaleDateString('en-AU', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } catch (e) {
+          return 'N/A';
+        }
+      };
+
+      const handleInlineReceive = (item) => {
+        const qtyStr = prompt(`Receive Shipment for "${item.name}":\nHow many units are you adding?`, "1");
+        if (qtyStr === null) return;
+        const qty = parseInt(qtyStr, 10);
+        if (isNaN(qty) || qty <= 0) {
+          alert("Invalid quantity entered. Please enter a positive integer.");
+          return;
+        }
+        const prev = item.stock || 0;
+        const next = prev + qty;
+        setInventory(prevInv => prevInv.map(p => p.id === item.id ? { ...p, stock: next } : p));
+        logStockAdjustment(item, 'Receive', prev, next);
+      };
+
+      const handleInlineStockTake = (item) => {
+        const qtyStr = prompt(`Stock Take for "${item.name}":\nEnter the actual physical count:`, (item.stock || 0).toString());
+        if (qtyStr === null) return;
+        const qty = parseInt(qtyStr, 10);
+        if (isNaN(qty) || qty < 0) {
+          alert("Invalid count entered. Please enter a non-negative integer.");
+          return;
+        }
+        const prev = item.stock || 0;
+        setInventory(prevInv => prevInv.map(p => p.id === item.id ? { ...p, stock: qty } : p));
+        logStockAdjustment(item, 'Stock Take', prev, qty);
+      };
+
+      const handleSaveReceiveModal = () => {
+        if (!selectedReceiveProduct) {
+          alert("Please select a product first.");
+          return;
+        }
+        const qty = parseInt(receiveQty, 10);
+        if (isNaN(qty) || qty <= 0) {
+          alert("Please enter a valid positive quantity to receive.");
+          return;
+        }
+        const prev = selectedReceiveProduct.stock || 0;
+        const next = prev + qty;
+        setInventory(prevInv => prevInv.map(p => p.id === selectedReceiveProduct.id ? { ...p, stock: next } : p));
+        logStockAdjustment(selectedReceiveProduct, 'Receive', prev, next);
+        alert(`Successfully received ${qty} units of ${selectedReceiveProduct.name}.`);
+        setIsReceiveModalOpen(false);
+        setReceiveSearchText('');
+        setSelectedReceiveProduct(null);
+        setReceiveQty('');
+      };
+
+      const handleSaveStockTakeModal = () => {
+        if (!selectedStockTakeProduct) {
+          alert("Please select a product first.");
+          return;
+        }
+        const qty = parseInt(stockTakeQty, 10);
+        if (isNaN(qty) || qty < 0) {
+          alert("Please enter a valid non-negative count.");
+          return;
+        }
+        const prev = selectedStockTakeProduct.stock || 0;
+        setInventory(prevInv => prevInv.map(p => p.id === selectedStockTakeProduct.id ? { ...p, stock: qty } : p));
+        logStockAdjustment(selectedStockTakeProduct, 'Stock Take', prev, qty);
+        alert(`Successfully updated stock for ${selectedStockTakeProduct.name} to ${qty} units.`);
+        setIsStockTakeModalOpen(false);
+        setStockTakeSearchText('');
+        setSelectedStockTakeProduct(null);
+        setStockTakeQty('');
+      };
 
       const suggestedOtcProducts = React.useMemo(() => {
         if (!otcSearchText.trim()) return [];
@@ -3288,6 +3518,10 @@
         const finalCostPrice = productForm.costPrice !== '' ? (parseFloat(productForm.costPrice) || 0) : parseFloat((retailPrice * 0.6).toFixed(2));
 
         if (editingProduct) {
+          const nextStock = parseInt(productForm.stock) || 0;
+          if ((editingProduct.stock || 0) !== nextStock) {
+            logStockAdjustment(editingProduct, 'Stock Take (Edit Form)', editingProduct.stock || 0, nextStock);
+          }
           setInventory(prev => prev.map(p => p.id === editingProduct.id ? {
             ...p,
             sku: productForm.sku,
@@ -3295,12 +3529,13 @@
             category: productForm.category,
             price: retailPrice,
             costPrice: finalCostPrice,
-            stock: parseInt(productForm.stock) || 0,
+            stock: nextStock,
             reorderPoint: parseInt(productForm.reorderPoint) || 0,
             supplier: productForm.supplier || 'Generic'
           } : p));
           setEditingProduct(null);
         } else {
+          const newStock = parseInt(productForm.stock) || 0;
           const newProduct = {
             id: `PROD-${Date.now().toString().slice(-4)}`,
             sku: productForm.sku,
@@ -3308,11 +3543,14 @@
             category: productForm.category,
             price: retailPrice,
             costPrice: finalCostPrice,
-            stock: parseInt(productForm.stock) || 0,
+            stock: newStock,
             reorderPoint: parseInt(productForm.reorderPoint) || 0,
             supplier: productForm.supplier || 'Generic'
           };
           setInventory(prev => [newProduct, ...prev]);
+          if (newStock > 0) {
+            logStockAdjustment(newProduct, 'Receive (New Product)', 0, newStock);
+          }
         }
         setIsAddOpen(false);
         resetForm();
@@ -3479,6 +3717,41 @@
                     <Icon name="clipboard" size={14} /> Reorder Report
                   </button>
                   <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setReceiveSearchText('');
+                      setSelectedReceiveProduct(null);
+                      setReceiveQty('');
+                      setIsReceiveModalOpen(true);
+                    }}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    <Icon name="plus" size={14} /> Receive Shipment
+                  </button>
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setStockTakeSearchText('');
+                      setSelectedStockTakeProduct(null);
+                      setStockTakeQty('');
+                      setIsStockTakeModalOpen(true);
+                    }}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    <Icon name="clipboard" size={14} /> Perform Stock Take
+                  </button>
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setHistorySearch('');
+                      setIsHistoryModalOpen(true);
+                    }}
+                    style={{ whiteSpace: 'nowrap' }}
+                    title="View Stock Adjustments Log"
+                  >
+                    <Icon name="history" size={14} /> Adjustment History
+                  </button>
+                  <button 
                     className="btn btn-primary"
                     onClick={() => { resetForm(); setIsAddOpen(true); }}
                     style={{ whiteSpace: 'nowrap' }}
@@ -3490,8 +3763,8 @@
                       className="btn btn-secondary"
                       title="Reset inventory to original master catalog list"
                       onClick={() => {
-                        if (confirm("Reset current inventory to the master supplier catalog? This will overwrite stock counts to default (10) and restore all 22,463 original products.")) {
-                          setInventory(window.MASTER_PRODUCTS);
+                        if (confirm("Reset current inventory to the master supplier catalog? This will restore all 22,463 original products with 0 stock default.")) {
+                          setInventory((window.MASTER_PRODUCTS || []).map(p => ({ ...p, stock: 0 })));
                           alert("Inventory successfully reset to the Master Supplier Catalog.");
                         }
                       }}
@@ -3535,11 +3808,28 @@
                             </span>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', gap: '6px' }}>
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                              <button 
+                                className="btn btn-secondary" 
+                                style={{ padding: '4px 8px', fontSize: '11px', whiteSpace: 'nowrap' }}
+                                onClick={() => handleInlineReceive(item)}
+                                title="Add stock"
+                              >
+                                + Receive
+                              </button>
+                              <button 
+                                className="btn btn-secondary" 
+                                style={{ padding: '4px 8px', fontSize: '11px', whiteSpace: 'nowrap' }}
+                                onClick={() => handleInlineStockTake(item)}
+                                title="Overwrite stock count"
+                              >
+                                Stock Take
+                              </button>
                               <button 
                                 className="btn btn-secondary" 
                                 style={{ padding: '6px' }}
                                 onClick={() => handleEditClick(item)}
+                                title="Edit details"
                               >
                                 <Icon name="edit" size={14} />
                               </button>
@@ -3547,6 +3837,7 @@
                                 className="btn btn-danger" 
                                 style={{ padding: '6px' }}
                                 onClick={() => handleDeleteClick(item.id)}
+                                title="Delete product"
                               >
                                 <Icon name="trash" size={14} />
                               </button>
@@ -3818,6 +4109,301 @@
             </div>
           )}
 
+          {/* BATCH RECEIVE SHIPMENT MODAL */}
+          {isReceiveModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '500px' }}>
+                <div className="modal-header">
+                  <h3>Receive Bulk Shipment</h3>
+                  <button className="close-btn" onClick={() => setIsReceiveModalOpen(false)}>&times;</button>
+                </div>
+                <div className="modal-body">
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    Search for a catalog product to add received quantities into inventory.
+                  </p>
+                  
+                  <div className="form-group autocomplete-wrapper" style={{ position: 'relative' }}>
+                    <label>Search Product (SKU / Name)</label>
+                    <input 
+                      type="text" 
+                      className="input-control" 
+                      placeholder="Type to search catalog..." 
+                      value={receiveSearchText}
+                      onChange={(e) => {
+                        setReceiveSearchText(e.target.value);
+                        setShowReceiveSuggestions(true);
+                      }}
+                      onFocus={() => setShowReceiveSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowReceiveSuggestions(false), 200)}
+                    />
+                    {showReceiveSuggestions && suggestedReceiveProducts.length > 0 && (
+                      <ul className="autocomplete-list" style={{ top: '100%', zIndex: 1000 }}>
+                        {suggestedReceiveProducts.map(p => (
+                          <li 
+                            key={p.id} 
+                            className="autocomplete-item"
+                            onClick={() => {
+                              setSelectedReceiveProduct(p);
+                              setReceiveSearchText(`${p.name} (SKU: ${p.sku})`);
+                              setShowReceiveSuggestions(false);
+                            }}
+                          >
+                            {p.name} (SKU: {p.sku}) - Current Stock: {p.stock}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {selectedReceiveProduct && (
+                    <div className="card" style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', marginBottom: '16px', fontSize: '13px' }}>
+                      <strong>Selected Product:</strong> {selectedReceiveProduct.name}<br />
+                      <strong>SKU:</strong> <code>{selectedReceiveProduct.sku}</code><br />
+                      <strong>Current Stock Count:</strong> {selectedReceiveProduct.stock} units
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>Quantity to Receive (Add)</label>
+                    <input 
+                      type="number" 
+                      min="1"
+                      className="input-control" 
+                      placeholder="e.g. 10" 
+                      value={receiveQty}
+                      onChange={(e) => setReceiveQty(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => setIsReceiveModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary" 
+                    onClick={handleSaveReceiveModal}
+                    disabled={!selectedReceiveProduct || !receiveQty}
+                  >
+                    Receive Stock
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* BATCH PERFORM STOCK TAKE MODAL */}
+          {isStockTakeModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '500px' }}>
+                <div className="modal-header">
+                  <h3>Perform Stock Take (Overwrite)</h3>
+                  <button className="close-btn" onClick={() => setIsStockTakeModalOpen(false)}>&times;</button>
+                </div>
+                <div className="modal-body">
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    Select a product and enter its actual physical stock count. This will overwrite the database.
+                  </p>
+                  
+                  <div className="form-group autocomplete-wrapper" style={{ position: 'relative' }}>
+                    <label>Search Product (SKU / Name)</label>
+                    <input 
+                      type="text" 
+                      className="input-control" 
+                      placeholder="Type to search catalog..." 
+                      value={stockTakeSearchText}
+                      onChange={(e) => {
+                        setStockTakeSearchText(e.target.value);
+                        setShowStockTakeSuggestions(true);
+                      }}
+                      onFocus={() => setShowStockTakeSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowStockTakeSuggestions(false), 200)}
+                    />
+                    {showStockTakeSuggestions && suggestedStockTakeProducts.length > 0 && (
+                      <ul className="autocomplete-list" style={{ top: '100%', zIndex: 1000 }}>
+                        {suggestedStockTakeProducts.map(p => (
+                          <li 
+                            key={p.id} 
+                            className="autocomplete-item"
+                            onClick={() => {
+                              setSelectedStockTakeProduct(p);
+                              setStockTakeSearchText(`${p.name} (SKU: ${p.sku})`);
+                              setShowStockTakeSuggestions(false);
+                              setStockTakeQty((p.stock || 0).toString());
+                            }}
+                          >
+                            {p.name} (SKU: {p.sku}) - Current Stock: {p.stock}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {selectedStockTakeProduct && (
+                    <div className="card" style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', marginBottom: '16px', fontSize: '13px' }}>
+                      <strong>Selected Product:</strong> {selectedStockTakeProduct.name}<br />
+                      <strong>SKU:</strong> <code>{selectedStockTakeProduct.sku}</code><br />
+                      <strong>Current Database Count:</strong> {selectedStockTakeProduct.stock} units
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>Actual Physical Count (New Stock Level)</label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      className="input-control" 
+                      placeholder="e.g. 5" 
+                      value={stockTakeQty}
+                      onChange={(e) => setStockTakeQty(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => setIsStockTakeModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary" 
+                    onClick={handleSaveStockTakeModal}
+                    disabled={!selectedStockTakeProduct || stockTakeQty === ''}
+                  >
+                    Update Stock Count
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STOCK ADJUSTMENT HISTORY LOG MODAL */}
+          {isHistoryModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '850px', width: '90%' }}>
+                <div className="modal-header">
+                  <h3>Stock Intake & Stocktake History Log</h3>
+                  <button className="close-btn" onClick={() => setIsHistoryModalOpen(false)}>&times;</button>
+                </div>
+                <div className="modal-body">
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    A chronological audit trail of all manual stock receives (intakes) and counts (stocktakes) logged in the console.
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ position: 'relative', flexGrow: 1 }}>
+                      <input 
+                        type="text" 
+                        placeholder="Search history by product name or SKU..." 
+                        className="input-control"
+                        style={{ width: '100%', paddingLeft: '38px', paddingRight: '12px' }}
+                        value={historySearch}
+                        onChange={(e) => setHistorySearch(e.target.value)}
+                      />
+                      <span style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-muted)' }}>
+                        <Icon name="search" size={15} />
+                      </span>
+                    </div>
+                    {stockHistory && stockHistory.length > 0 && (
+                      <button 
+                        type="button" 
+                        className="btn btn-danger" 
+                        onClick={() => {
+                          if (confirm("Are you sure you want to permanently clear the stock adjustment audit log? This cannot be undone.")) {
+                            setStockHistory([]);
+                          }
+                        }}
+                      >
+                        Clear Audit Log
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="table-container" style={{ maxHeight: '450px', overflowY: 'auto' }}>
+                    <table className="custom-table" style={{ fontSize: '12.5px' }}>
+                      <thead>
+                        <tr>
+                          <th>Date & Time</th>
+                          <th>Product Details</th>
+                          <th>Adjustment Type</th>
+                          <th style={{ textAlign: 'center' }}>Previous</th>
+                          <th style={{ textAlign: 'center' }}>New Count</th>
+                          <th style={{ textAlign: 'center' }}>Net Change</th>
+                          <th>Logged By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredHistory.map(record => {
+                          const diff = record.newStock - record.prevStock;
+                          let changeText = '';
+                          let changeClass = '';
+                          
+                          if (record.type.startsWith('Receive') || record.type === 'Receive (New Product)') {
+                            changeText = `+${diff}`;
+                            changeClass = 'text-success';
+                          } else if (record.type.startsWith('Stock Take') || record.type === 'Stock Take (Edit Form)') {
+                            if (diff > 0) {
+                              changeText = `+${diff} (Counted)`;
+                              changeClass = 'text-success';
+                            } else if (diff < 0) {
+                              changeText = `${diff} (Counted)`;
+                              changeClass = 'text-danger';
+                            } else {
+                              changeText = 'No Change';
+                              changeClass = 'text-muted';
+                            }
+                          } else {
+                            changeText = diff > 0 ? `+${diff}` : (diff < 0 ? `${diff}` : '0');
+                            changeClass = diff > 0 ? 'text-success' : (diff < 0 ? 'text-danger' : 'text-muted');
+                          }
+
+                          return (
+                            <tr key={record.id}>
+                              <td>{formatDate(record.timestamp)}</td>
+                              <td>
+                                <strong>{record.name}</strong>
+                                <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>SKU: <code>{record.sku}</code></div>
+                              </td>
+                              <td>
+                                <span className={`badge ${record.type.startsWith('Receive') ? 'badge-in-stock' : 'badge-low-stock'}`} style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                  {record.type}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: 'center' }}>{record.prevStock}</td>
+                              <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{record.newStock}</td>
+                              <td style={{ textAlign: 'center', fontWeight: 'bold' }} className={changeClass}>
+                                {changeText}
+                              </td>
+                              <td><span className="text-gold">{record.user}</span></td>
+                            </tr>
+                          );
+                        })}
+                        {filteredHistory.length === 0 && (
+                          <tr>
+                            <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                              No stock adjustment logs found matching your criteria.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={() => window.print()}>Print History Log</button>
+                  <button className="btn btn-primary" onClick={() => setIsHistoryModalOpen(false)}>Close</button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* SUPPLIER REORDER REPORT MODAL */}
           {isReorderReportOpen && (
             <div className="modal-overlay">
@@ -3892,7 +4478,7 @@
     /* =========================================================================
        3. CLIENTS DIRECTORY COMPONENT
        ========================================================================= */
-    function ClientsPage({ clients, setClients, repairs }) {
+    function ClientsPage({ clients, setClients, repairs, invoices }) {
       const [searchTerm, setSearchTerm] = React.useState('');
       const [selectedClient, setSelectedClient] = React.useState(null);
       
@@ -3901,6 +4487,17 @@
       const [clientForm, setClientForm] = React.useState({
         name: '', phone: '', email: '', address: '', notes: ''
       });
+
+      const formatDate = (isoString) => {
+        if (!isoString) return 'N/A';
+        try {
+          const d = new Date(isoString);
+          if (isNaN(d.getTime())) return 'N/A';
+          return d.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' });
+        } catch (e) {
+          return 'N/A';
+        }
+      };
 
       const filteredClients = clients.filter(c => {
         const text = (searchTerm || '').toLowerCase();
@@ -3953,6 +4550,12 @@
 
       const clientRepairs = selectedClient ? repairs.filter(r => 
         r.client.name.toLowerCase() === selectedClient.name.toLowerCase()
+      ) : [];
+
+      const clientPurchases = selectedClient && invoices ? invoices.filter(inv => 
+        inv.client &&
+        inv.client.name.toLowerCase() === selectedClient.name.toLowerCase() &&
+        !inv.repairJobId
       ) : [];
 
       return (
@@ -4080,6 +4683,48 @@
                 ) : (
                   <div className="card" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
                     No repair or checkout history logged for this client profile.
+                  </div>
+                )}
+
+                {/* Product Purchase History */}
+                <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '16px', marginTop: '24px', marginBottom: '12px' }}>Product Purchase History</h4>
+                
+                {clientPurchases.length > 0 ? (
+                  <div className="table-container">
+                    <table className="custom-table" style={{ fontSize: '13px' }}>
+                      <thead>
+                        <tr>
+                          <th>Invoice ID</th>
+                          <th>Items Purchased</th>
+                          <th>School PO#</th>
+                          <th>Date</th>
+                          <th>Total Paid</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {clientPurchases.map(inv => (
+                          <tr key={inv.id}>
+                            <td><strong>{inv.id}</strong></td>
+                            <td>
+                              <ul style={{ margin: 0, paddingLeft: '16px', listStyleType: 'disc' }}>
+                                {(inv.lineItems || []).map((li, idx) => (
+                                  <li key={idx}>
+                                    {li.description} (x{li.qty || 1}) - ${(li.unitPrice * (li.qty || 1)).toFixed(2)}
+                                  </li>
+                                ))}
+                              </ul>
+                            </td>
+                            <td><code>{inv.schoolPo || 'None'}</code></td>
+                            <td>{formatDate(inv.createdAt || inv.syncedAt)}</td>
+                            <td><strong>${inv.total.toFixed(2)}</strong></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="card" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                    No retail product purchases logged for this client profile.
                   </div>
                 )}
               </div>
@@ -5212,6 +5857,697 @@
 
 
     /* =========================================================================
+       7. PRODUCT SALES REGISTER COMPONENT
+       ========================================================================= */
+    function ProductSalesPage({ inventory, setInventory, clients, setClients, setInvoices, setActiveTab }) {
+      const [clientSearchText, setClientSearchText] = React.useState('');
+      const [showClientSuggestions, setShowClientSuggestions] = React.useState(false);
+      const [selectedClient, setSelectedClient] = React.useState(null);
+
+      // Client details form (for registering a new client)
+      const [clientForm, setClientForm] = React.useState({
+        name: '',
+        phone: '',
+        email: '',
+        address: ''
+      });
+
+      const [schoolName, setSchoolName] = React.useState('');
+      const [schoolPo, setSchoolPo] = React.useState('');
+
+      // Cart Builder State
+      const [cart, setCart] = React.useState([]);
+      const [productSearchText, setProductSearchText] = React.useState('');
+      const [showProductSuggestions, setShowProductSuggestions] = React.useState(false);
+
+      const suggestedClients = React.useMemo(() => {
+        if (!clientSearchText.trim()) return [];
+        const lower = clientSearchText.toLowerCase();
+        return clients.filter(c => 
+          c.name.toLowerCase().includes(lower) || 
+          (c.phone && c.phone.toLowerCase().includes(lower)) ||
+          (c.email && c.email.toLowerCase().includes(lower))
+        ).slice(0, 10);
+      }, [clientSearchText, clients]);
+
+      const suggestedProducts = React.useMemo(() => {
+        if (!productSearchText.trim()) return [];
+        const lower = productSearchText.toLowerCase();
+        return inventory.filter(p => 
+          (p.sku || '').toLowerCase().includes(lower) || 
+          (p.name || '').toLowerCase().includes(lower)
+        ).slice(0, 10);
+      }, [productSearchText, inventory]);
+
+      const handleAddProductToCart = (product) => {
+        const existing = cart.find(item => item.id === product.id);
+        if (existing) {
+          setCart(cart.map(item => 
+            item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          ));
+        } else {
+          setCart([...cart, { ...product, qty: 1 }]);
+        }
+        setProductSearchText('');
+        setShowProductSuggestions(false);
+      };
+
+      const handleUpdateCartQty = (productId, qty) => {
+        if (qty <= 0) {
+          setCart(cart.filter(item => item.id !== productId));
+        } else {
+          setCart(cart.map(item => 
+            item.id === productId ? { ...item, qty } : item
+          ));
+        }
+      };
+
+      const handleUpdateCartPrice = (productId, price) => {
+        setCart(cart.map(item => 
+          item.id === productId ? { ...item, price: parseFloat(price) || 0 } : item
+        ));
+      };
+
+      const handleRemoveFromCart = (productId) => {
+        setCart(cart.filter(item => item.id !== productId));
+      };
+
+      const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const cartTax = cartTotal / 11;
+      const cartSubtotal = cartTotal - cartTax;
+
+      const handleCompleteCheckout = (e) => {
+        e.preventDefault();
+        
+        if (cart.length === 0) {
+          alert("Your shopping cart is empty!");
+          return;
+        }
+
+        // Determine client details
+        let finalClient = null;
+        if (selectedClient) {
+          finalClient = selectedClient;
+        } else {
+          if (!clientForm.name.trim()) {
+            alert("Please enter a customer name or select an existing client.");
+            return;
+          }
+          finalClient = {
+            id: `CLI-${Date.now().toString().slice(-4)}`,
+            name: clientForm.name.trim(),
+            phone: clientForm.phone.trim() || '-',
+            email: clientForm.email.trim() || '-',
+            address: clientForm.address.trim() || '',
+            notes: schoolName ? `School: ${schoolName}` : ''
+          };
+          // Save new client to clients list
+          setClients(prev => [...prev, finalClient]);
+        }
+
+        // Deduct items from stock
+        const stockUpdates = new Map();
+        cart.forEach(item => {
+          stockUpdates.set(item.id, item.qty);
+        });
+
+        // Check stock availability (warning only)
+        const insufficientItems = cart.filter(item => item.stock < item.qty);
+        if (insufficientItems.length > 0) {
+          const names = insufficientItems.map(item => `"${item.name}" (Requested: ${item.qty}, In Stock: ${item.stock})`).join('\n');
+          const proceed = confirm(`Warning: The following items have insufficient stock:\n\n${names}\n\nDo you want to proceed anyway? This will result in negative stock counts.`);
+          if (!proceed) return;
+        }
+
+        setInventory(prev => prev.map(p => {
+          if (stockUpdates.has(p.id)) {
+            return { ...p, stock: (p.stock || 0) - stockUpdates.get(p.id) };
+          }
+          return p;
+        }));
+
+        // Generate Invoice
+        const lineItems = cart.map(item => ({
+          description: `Product Sale - ${item.name}`,
+          qty: item.qty,
+          unitPrice: item.price,
+          xeroAccountCode: '420' // Retail sales code
+        }));
+
+        const newInvoice = {
+          id: `INV-${Date.now().toString().slice(-4)}`,
+          client: { 
+            name: finalClient.name, 
+            phone: finalClient.phone, 
+            email: finalClient.email 
+          },
+          lineItems,
+          subtotal: parseFloat(cartSubtotal.toFixed(2)),
+          tax: parseFloat(cartTax.toFixed(2)),
+          total: parseFloat(cartTotal.toFixed(2)),
+          xeroSyncStatus: 'unsynced',
+          schoolPo: schoolPo.trim() || '',
+          createdAt: new Date().toISOString()
+        };
+
+        setInvoices(prev => [newInvoice, ...prev]);
+        alert(`Retail sale recorded successfully! Total: $${cartTotal.toFixed(2)}. Invoice generated: ${newInvoice.id}`);
+        
+        // Reset Page
+        setCart([]);
+        setClientSearchText('');
+        setSelectedClient(null);
+        setClientForm({ name: '', phone: '', email: '', address: '' });
+        setSchoolName('');
+        setSchoolPo('');
+        
+        // Redirect to Invoices Tab
+        setActiveTab('invoices');
+      };
+
+      return (
+        <div className="grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          {/* Customer & Details Card */}
+          <div className="card">
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="user" className="text-gold" /> Customer Checkout Info
+            </h3>
+
+            <div className="form-group autocomplete-wrapper" style={{ marginBottom: '16px' }}>
+              <label>Search Existing Clients</label>
+              <input 
+                type="text" 
+                className="input-control" 
+                placeholder="Search by name, phone, or email..."
+                value={clientSearchText}
+                onChange={(e) => {
+                  setClientSearchText(e.target.value);
+                  setShowClientSuggestions(true);
+                  if (!e.target.value.trim()) {
+                    setSelectedClient(null);
+                  }
+                }}
+                onFocus={() => setShowClientSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowClientSuggestions(false), 200)}
+              />
+              {showClientSuggestions && suggestedClients.length > 0 && (
+                <ul className="autocomplete-list">
+                  {suggestedClients.map(c => (
+                    <li 
+                      key={c.id} 
+                      className="autocomplete-item"
+                      onClick={() => {
+                        setSelectedClient(c);
+                        setClientSearchText(c.name);
+                        setShowClientSuggestions(false);
+                      }}
+                    >
+                      {c.name} - {c.phone} | {c.email}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {selectedClient ? (
+              <div className="card" style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-gold)', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong>Selected Client: {selectedClient.name}</strong>
+                    <span style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      Phone: {selectedClient.phone} | Email: {selectedClient.email}
+                    </span>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    style={{ padding: '4px 8px', fontSize: '12px' }}
+                    onClick={() => {
+                      setSelectedClient(null);
+                      setClientSearchText('');
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="card" style={{ padding: '16px', backgroundColor: 'var(--bg-tertiary)', marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '13px', color: 'var(--accent-gold)', marginBottom: '8px' }}>Or Register New Customer</h4>
+                <div className="form-group" style={{ marginBottom: '8px' }}>
+                  <label>Full Name</label>
+                  <input 
+                    type="text" 
+                    className="input-control" 
+                    placeholder="John Doe"
+                    value={clientForm.name}
+                    onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-row" style={{ gap: '12px', marginBottom: '8px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label>Phone</label>
+                    <input 
+                      type="text" 
+                      className="input-control" 
+                      placeholder="0400 123 456"
+                      value={clientForm.phone}
+                      onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label>Email</label>
+                    <input 
+                      type="email" 
+                      className="input-control" 
+                      placeholder="john@example.com"
+                      value={clientForm.email}
+                      onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label>Address</label>
+                  <input 
+                    type="text" 
+                    className="input-control" 
+                    placeholder="123 High St, Melbourne"
+                    value={clientForm.address}
+                    onChange={(e) => setClientForm({ ...clientForm, address: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="form-row" style={{ gap: '12px' }}>
+              <div className="form-group">
+                <label>School Name (Optional)</label>
+                <input 
+                  type="text" 
+                  className="input-control" 
+                  placeholder="e.g. Melbourne Grammar"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>School Purchase Order (PO#)</label>
+                <input 
+                  type="text" 
+                  className="input-control" 
+                  placeholder="e.g. PO-88772"
+                  value={schoolPo}
+                  onChange={(e) => setSchoolPo(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Cart & Search Card */}
+          <div className="card">
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="shoppingbag" className="text-gold" /> Shopping Cart Register
+            </h3>
+
+            <div className="form-group autocomplete-wrapper" style={{ marginBottom: '16px' }}>
+              <label>Search Product to Add (SKU / Name)</label>
+              <input 
+                type="text" 
+                className="input-control" 
+                placeholder="Search catalog..."
+                value={productSearchText}
+                onChange={(e) => {
+                  setProductSearchText(e.target.value);
+                  setShowProductSuggestions(true);
+                }}
+                onFocus={() => setShowProductSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowProductSuggestions(false), 200)}
+              />
+              {showProductSuggestions && suggestedProducts.length > 0 && (
+                <ul className="autocomplete-list">
+                  {suggestedProducts.map(p => (
+                    <li 
+                      key={p.id} 
+                      className="autocomplete-item"
+                      onClick={() => handleAddProductToCart(p)}
+                    >
+                      {p.name} (SKU: {p.sku}) - ${p.price.toFixed(2)} | Stock: {p.stock}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {cart.length > 0 ? (
+              <div>
+                <div className="table-container" style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '16px' }}>
+                  <table className="custom-table" style={{ fontSize: '13px' }}>
+                    <thead>
+                      <tr>
+                        <th>Product Name</th>
+                        <th style={{ width: '100px' }}>Price</th>
+                        <th style={{ width: '80px' }}>Qty</th>
+                        <th style={{ width: '100px' }}>Total</th>
+                        <th style={{ width: '40px' }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map(item => (
+                        <tr key={item.id}>
+                          <td>
+                            <strong>{item.name}</strong>
+                            <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                              SKU: {item.sku} | In stock: {item.stock}
+                            </div>
+                          </td>
+                          <td>
+                            <input 
+                              type="number" 
+                              step="0.01" 
+                              className="input-control" 
+                              style={{ width: '80px', padding: '4px' }} 
+                              value={item.price}
+                              onChange={(e) => handleUpdateCartPrice(item.id, e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input 
+                              type="number" 
+                              min="1" 
+                              className="input-control" 
+                              style={{ width: '60px', padding: '4px' }} 
+                              value={item.qty}
+                              onChange={(e) => handleUpdateCartQty(item.id, parseInt(e.target.value) || 0)}
+                            />
+                          </td>
+                          <td>${(item.price * item.qty).toFixed(2)}</td>
+                          <td>
+                            <button 
+                              type="button" 
+                              className="btn btn-danger" 
+                              style={{ padding: '4px' }}
+                              onClick={() => handleRemoveFromCart(item.id)}
+                            >
+                              &times;
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="card" style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', marginBottom: '16px' }}>
+                  <div className="flex-space" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    <span>Subtotal (ex GST):</span>
+                    <span>${cartSubtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex-space" style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                    <span>GST (10%):</span>
+                    <span>${cartTax.toFixed(2)}</span>
+                  </div>
+                  <hr style={{ border: 0, borderBottom: '1px solid var(--border-subtle)', margin: '8px 0' }} />
+                  <div className="flex-space" style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                    <span className="text-gold">Total Due:</span>
+                    <span className="text-gold">${cartTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ width: '100%', padding: '12px', fontSize: '15px' }}
+                  onClick={handleCompleteCheckout}
+                >
+                  Confirm Sale & Generate Invoice
+                </button>
+              </div>
+            ) : (
+              <div className="card" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-secondary)' }}>
+                🛒 Cart is empty. Search products above to add items.
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+
+    /* =========================================================================
+       8. REPORTS & ANALYTICS COMPONENT
+       ========================================================================= */
+    function ReportsPage({ repairs, invoices, inventory }) {
+      const [expandedMonth, setExpandedMonth] = React.useState(null);
+
+      // Create a map of inventory to quickly look up cost price
+      const inventoryMap = React.useMemo(() => {
+        const m = new Map();
+        inventory.forEach(p => {
+          m.set(p.id, p);
+          if (p.sku) m.set(p.sku, p);
+        });
+        return m;
+      }, [inventory]);
+
+      const monthlyData = React.useMemo(() => {
+        const months = {};
+
+        invoices.forEach(inv => {
+          const dateStr = inv.createdAt || inv.syncedAt || '2026-06-01';
+          const monthKey = dateStr.slice(0, 7); // 'YYYY-MM'
+
+          if (!months[monthKey]) {
+            months[monthKey] = {
+              monthKey,
+              revenue: 0,
+              cost: 0,
+              repairsCount: 0,
+              salesCount: 0,
+              invoices: []
+            };
+          }
+
+          const mObj = months[monthKey];
+          mObj.revenue += inv.total;
+          mObj.invoices.push(inv);
+
+          // Calculate cost
+          if (inv.repairJobId) {
+            mObj.repairsCount += 1;
+            // Try to find the repair record
+            const rep = repairs.find(r => r.id === inv.repairJobId);
+            if (rep) {
+              const laborCost = (rep.laborHours || 0) * 60; // $60/hr wholesale labor cost
+              let partsCost = 0;
+              (rep.partsUsed || []).forEach(part => {
+                const prod = inventoryMap.get(part.id) || inventoryMap.get(part.sku);
+                const unitCost = prod ? (prod.costPrice || (prod.price * 0.6)) : (part.price * 0.6);
+                partsCost += unitCost * (part.qty || 1);
+              });
+              mObj.cost += (laborCost + partsCost);
+            } else {
+              // Fallback if repair not found in current list
+              mObj.cost += inv.total * 0.6;
+            }
+          } else {
+            mObj.salesCount += 1;
+            // Retail sale cost lookup
+            let saleCost = 0;
+            (inv.lineItems || []).forEach(li => {
+              // Try to parse product name from "Product Sale - [name]" or "Retail Sale - [name]"
+              let pName = li.description;
+              if (pName.startsWith("Product Sale - ")) pName = pName.replace("Product Sale - ", "");
+              if (pName.startsWith("Retail Sale - ")) pName = pName.replace("Retail Sale - ", "");
+              
+              // Find product in inventory by name or sku
+              const prod = inventory.find(p => p.name === pName || p.sku === pName) || inventoryMap.get(pName);
+              const unitCost = prod ? (prod.costPrice || (prod.price * 0.6)) : (li.unitPrice * 0.6);
+              saleCost += unitCost * (li.qty || 1);
+            });
+            mObj.cost += saleCost;
+          }
+        });
+
+        // Convert to array and sort descending by month
+        return Object.values(months).sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+      }, [invoices, repairs, inventory, inventoryMap]);
+
+      const formatMonthName = (monthStr) => {
+        try {
+          const [year, month] = monthStr.split('-');
+          const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+          return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        } catch (e) {
+          return monthStr;
+        }
+      };
+
+      const calculateInvoiceProfitInfo = (inv) => {
+        let revenue = inv.total;
+        let cost = 0;
+        let type = 'Product Sale';
+        let details = '';
+
+        if (inv.repairJobId) {
+          type = `Repair (${inv.repairJobId})`;
+          const rep = repairs.find(r => r.id === inv.repairJobId);
+          if (rep) {
+            const laborCost = (rep.laborHours || 0) * 60;
+            let partsCost = 0;
+            (rep.partsUsed || []).forEach(part => {
+              const prod = inventoryMap.get(part.id) || inventoryMap.get(part.sku);
+              const unitCost = prod ? (prod.costPrice || (prod.price * 0.6)) : (part.price * 0.6);
+              partsCost += unitCost * (part.qty || 1);
+            });
+            cost = laborCost + partsCost;
+            details = `${rep.instrument.make} ${rep.instrument.model} - ${rep.laborHours || 0} hrs labor`;
+          } else {
+            cost = inv.total * 0.6;
+            details = 'Repair details unavailable';
+          }
+        } else {
+          // Direct Product Sale
+          let itemsDesc = [];
+          (inv.lineItems || []).forEach(li => {
+            let pName = li.description;
+            if (pName.startsWith("Product Sale - ")) pName = pName.replace("Product Sale - ", "");
+            if (pName.startsWith("Retail Sale - ")) pName = pName.replace("Retail Sale - ", "");
+            
+            const prod = inventory.find(p => p.name === pName || p.sku === pName) || inventoryMap.get(pName);
+            const unitCost = prod ? (prod.costPrice || (prod.price * 0.6)) : (li.unitPrice * 0.6);
+            cost += unitCost * (li.qty || 1);
+            itemsDesc.push(`${pName} (x${li.qty})`);
+          });
+          details = itemsDesc.join(', ');
+        }
+
+        const profit = revenue - cost;
+        const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+        return { type, details, cost, profit, margin };
+      };
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="card">
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="barchart" className="text-gold" /> Monthly Cash Flow & Profits
+            </h3>
+            <p className="text-muted" style={{ fontSize: '13px', marginBottom: '20px' }}>
+              Summary of all invoices, parts markups, and technician labor margins grouped by month. Costs are calculated using $60/hour technician shop rate and actual product cost price.
+            </p>
+
+            <div className="table-container">
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Invoiced Revenue</th>
+                    <th>Wholesale Costs</th>
+                    <th>Net Profit</th>
+                    <th>Margin</th>
+                    <th>Volume (Repairs / Sales)</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthlyData.map(m => {
+                    const profit = m.revenue - m.cost;
+                    const margin = m.revenue > 0 ? (profit / m.revenue) * 100 : 0;
+                    const isExpanded = expandedMonth === m.monthKey;
+                    
+                    return (
+                      <React.Fragment key={m.monthKey}>
+                        <tr>
+                          <td><strong>{formatMonthName(m.monthKey)}</strong></td>
+                          <td className="text-success" style={{ fontWeight: 'bold' }}>${m.revenue.toFixed(2)}</td>
+                          <td style={{ color: '#f87171' }}>${m.cost.toFixed(2)}</td>
+                          <td className="text-gold" style={{ fontWeight: 'bold' }}>${profit.toFixed(2)}</td>
+                          <td>
+                            <span className="badge" style={{ backgroundColor: 'rgba(197, 160, 89, 0.1)', color: 'var(--accent-gold)' }}>
+                              {margin.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td>
+                            🔧 {m.repairsCount} repairs | 📦 {m.salesCount} checkouts
+                          </td>
+                          <td>
+                            <button 
+                              className="btn btn-secondary"
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              onClick={() => setExpandedMonth(isExpanded ? null : m.monthKey)}
+                            >
+                              {isExpanded ? 'Hide Details' : 'View Itemized'}
+                            </button>
+                          </td>
+                        </tr>
+
+                        {isExpanded && (
+                          <tr>
+                            <td colSpan="7" style={{ padding: '16px', backgroundColor: 'var(--bg-secondary)' }}>
+                              <h4 style={{ fontSize: '14px', color: 'var(--accent-gold)', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>
+                                Itemized Transactions for {formatMonthName(m.monthKey)}
+                              </h4>
+                              
+                              <table className="custom-table" style={{ fontSize: '12px', backgroundColor: 'var(--bg-tertiary)' }}>
+                                <thead>
+                                  <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Client / School</th>
+                                    <th>Type</th>
+                                    <th>Items / Details</th>
+                                    <th>Revenue</th>
+                                    <th>Estimated Cost</th>
+                                    <th>Net Profit</th>
+                                    <th>Margin</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {m.invoices.map(inv => {
+                                    const { type, details, cost, profit, margin } = calculateInvoiceProfitInfo(inv);
+                                    return (
+                                      <tr key={inv.id}>
+                                        <td><code>{inv.id}</code></td>
+                                        <td>
+                                          <strong>{inv.client.name}</strong>
+                                          {inv.schoolPo && <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>PO: {inv.schoolPo}</div>}
+                                        </td>
+                                        <td>{type}</td>
+                                        <td style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={details}>
+                                          {details}
+                                        </td>
+                                        <td className="text-success">${inv.total.toFixed(2)}</td>
+                                        <td style={{ color: '#f87171' }}>${cost.toFixed(2)}</td>
+                                        <td className="text-gold" style={{ fontWeight: 'bold' }}>${profit.toFixed(2)}</td>
+                                        <td>{margin.toFixed(1)}%</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                  {monthlyData.length === 0 && (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                        No invoices logged to calculate cash flow report.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+
+    /* =========================================================================
        5. GLOBAL APP SHELL COMPONENT
        ========================================================================= */
     const INITIAL_REPAIRS = [
@@ -5332,6 +6668,7 @@
 
     function App() {
       const [activeTab, setActiveTab] = React.useState('repairs');
+      const [repairsFilter, setRepairsFilter] = React.useState('All');
 
       const safeJsonParse = (key, defaultValue) => {
         try {
@@ -5343,6 +6680,18 @@
           console.warn(`Error parsing localStorage key "${key}":`, e);
         }
         return defaultValue;
+      };
+
+      const hexToRgba = (hex, opacity) => {
+        if (!hex) return '';
+        let c = hex.substring(1);
+        if (c.length === 3) {
+          c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        }
+        const r = parseInt(c.substring(0, 2), 16);
+        const g = parseInt(c.substring(2, 4), 16);
+        const b = parseInt(c.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
       };
 
       const [companies, setCompanies] = React.useState(() => {
@@ -5467,7 +6816,7 @@
           if (deltaMap.has(p.id)) {
             mergedList.push(deltaMap.get(p.id));
           } else {
-            mergedList.push(p);
+            mergedList.push({ ...p, stock: 0 });
           }
         });
 
@@ -5486,7 +6835,7 @@
           localStorage.removeItem('ww_Custom Wind Works_inventory');
         } catch (e) {}
 
-        return mergedList.length > 0 ? mergedList : (window.MASTER_PRODUCTS || []);
+        return mergedList.length > 0 ? mergedList : (window.MASTER_PRODUCTS || []).map(p => ({ ...p, stock: 0 }));
       });
 
       const [invoices, setInvoices] = React.useState(() => {
@@ -5537,18 +6886,35 @@
       });
 
       const [theme, setTheme] = React.useState(() => {
-        const local = localStorage.getItem(`${compPrefix}theme`);
-        if (local) return local;
-        if (activeCompany === 'Concert Clean') {
-          const oldLocal = localStorage.getItem('ww_theme');
-          if (oldLocal) {
-            try {
-              localStorage.setItem(`${compPrefix}theme`, oldLocal);
-            } catch (e) {}
-            return oldLocal;
-          }
-        }
-        return 'dark';
+        const legacy = localStorage.getItem(`${compPrefix}theme`) || (activeCompany === 'Concert Clean' ? localStorage.getItem('ww_theme') : null);
+        return legacy || 'dark';
+      });
+
+      const defaultCustomColors = {
+        bgPrimary: '#0a0b0d',
+        bgSecondary: '#12141a',
+        bgTertiary: '#1b1e26',
+        textPrimary: '#ffffff',
+        textSecondary: '#d1d5db',
+        textMuted: '#9ca3af',
+        accentGold: '#c5a059',
+        accentGoldLight: '#dfc28c',
+        accentGoldGlow: 'rgba(197, 160, 89, 0.15)',
+        borderSubtle: '#374151',
+        borderGold: 'rgba(197, 160, 89, 0.45)'
+      };
+
+      const [customColors, setCustomColors] = React.useState(() => {
+        const local = safeJsonParse(`${compPrefix}custom_colors`, null);
+        if (local && typeof local === 'object' && local.bgPrimary) return local;
+        if (local && typeof local === 'object' && local.repairs) return local.repairs;
+        return { ...defaultCustomColors };
+      });
+
+      const [stockHistory, setStockHistory] = React.useState(() => {
+        const local = safeJsonParse(`${compPrefix}stock_history`, null);
+        if (local && Array.isArray(local)) return local;
+        return [];
       });
 
       const [instrumentLibrary, setInstrumentLibrary] = React.useState(() => {
@@ -5611,6 +6977,7 @@
       });
 
       const [isXeroConfigOpen, setIsXeroConfigOpen] = React.useState(false);
+      const [isThemeCustomizerOpen, setIsThemeCustomizerOpen] = React.useState(false);
       const [tempXeroConfig, setTempXeroConfig] = React.useState({
         clientId: '',
         tenantId: '',
@@ -5751,9 +7118,44 @@
 
       React.useEffect(() => {
         if (!activeCompany) return;
+        localStorage.setItem(`${compPrefix}stock_history`, JSON.stringify(stockHistory));
+      }, [stockHistory, compPrefix, activeCompany]);
+
+      React.useEffect(() => {
+        if (!activeCompany) return;
         localStorage.setItem(`${compPrefix}theme`, theme);
+        localStorage.setItem(`${compPrefix}custom_colors`, JSON.stringify(customColors));
+        
         document.body.className = `theme-${theme}`;
-      }, [theme, compPrefix, activeCompany]);
+        
+        if (theme === 'custom') {
+          const colors = customColors || defaultCustomColors;
+          document.body.style.setProperty('--custom-bg-primary', colors.bgPrimary);
+          document.body.style.setProperty('--custom-bg-secondary', colors.bgSecondary);
+          document.body.style.setProperty('--custom-bg-tertiary', colors.bgTertiary);
+          document.body.style.setProperty('--custom-text-primary', colors.textPrimary);
+          document.body.style.setProperty('--custom-text-secondary', colors.textSecondary);
+          document.body.style.setProperty('--custom-text-muted', colors.textMuted);
+          document.body.style.setProperty('--custom-accent-gold', colors.accentGold);
+          document.body.style.setProperty('--custom-accent-gold-light', colors.accentGoldLight || colors.accentGold);
+          document.body.style.setProperty('--custom-accent-gold-glow', colors.accentGoldGlow || 'rgba(197, 160, 89, 0.15)');
+          document.body.style.setProperty('--custom-border-subtle', colors.borderSubtle);
+          document.body.style.setProperty('--custom-border-gold', colors.borderGold || 'rgba(197, 160, 89, 0.45)');
+        } else {
+          // Clear custom variables so CSS theme rules take over
+          document.body.style.removeProperty('--custom-bg-primary');
+          document.body.style.removeProperty('--custom-bg-secondary');
+          document.body.style.removeProperty('--custom-bg-tertiary');
+          document.body.style.removeProperty('--custom-text-primary');
+          document.body.style.removeProperty('--custom-text-secondary');
+          document.body.style.removeProperty('--custom-text-muted');
+          document.body.style.removeProperty('--custom-accent-gold');
+          document.body.style.removeProperty('--custom-accent-gold-light');
+          document.body.style.removeProperty('--custom-accent-gold-glow');
+          document.body.style.removeProperty('--custom-border-subtle');
+          document.body.style.removeProperty('--custom-border-gold');
+        }
+      }, [theme, customColors, compPrefix, activeCompany]);
 
       // Sync Instrument Library
       React.useEffect(() => {
@@ -6141,11 +7543,29 @@
                 <ul className="nav-links">
                   <li>
                     <button 
-                      className={`nav-item ${activeTab === 'repairs' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('repairs')}
+                      className={`nav-item ${activeTab === 'repairs' && repairsFilter === 'All' ? 'active' : ''}`}
+                      onClick={() => { setActiveTab('repairs'); setRepairsFilter('All'); }}
                     >
                       <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="wrench" /></span>
-                      Repair Board
+                      Repair Board (All)
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`nav-item ${activeTab === 'repairs' && repairsFilter === 'Brass' ? 'active' : ''}`}
+                      onClick={() => { setActiveTab('repairs'); setRepairsFilter('Brass'); }}
+                    >
+                      <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="wrench" /></span>
+                      Brass Repairs
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`nav-item ${activeTab === 'repairs' && repairsFilter === 'Woodwind' ? 'active' : ''}`}
+                      onClick={() => { setActiveTab('repairs'); setRepairsFilter('Woodwind'); }}
+                    >
+                      <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="wrench" /></span>
+                      Woodwind Repairs
                     </button>
                   </li>
                   <li>
@@ -6155,6 +7575,15 @@
                     >
                       <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="package" /></span>
                       Stock Catalog
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`nav-item ${activeTab === 'sales' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('sales')}
+                    >
+                      <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="shoppingbag" /></span>
+                      Product Sales
                     </button>
                   </li>
                   <li>
@@ -6173,6 +7602,15 @@
                     >
                       <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="filetext" /></span>
                       Invoicing Console
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('reports')}
+                    >
+                      <span style={{ display: 'inline-block', marginRight: '6px' }}><Icon name="barchart" /></span>
+                      Reports & Analytics
                     </button>
                   </li>
                   <li>
@@ -6227,14 +7665,16 @@
                 <h2>
                   {activeTab === 'repairs' && 'Repair Intake & Workflow Board'}
                   {activeTab === 'inventory' && 'Inventory Catalog & Sales'}
+                  {activeTab === 'sales' && 'Product Sales Register'}
                   {activeTab === 'clients' && 'Client Directory'}
                   {activeTab === 'invoices' && 'Invoicing & Xero Sync'}
+                  {activeTab === 'reports' && 'Business Analytics & Reports'}
                   {activeTab === 'team' && 'Technician & Profile Settings'}
                 </h2>
               </div>
               <div className="header-actions">
                 {/* Theme Selector Widget */}
-                <div className="theme-selector" style={{ marginRight: '16px' }}>
+                <div className="theme-selector" style={{ marginRight: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <button 
                     className={`theme-btn ${theme === 'dark' ? 'active' : ''}`} 
                     style={{ backgroundColor: '#12141a' }}
@@ -6271,6 +7711,23 @@
                     title="Midnight Purple Case theme"
                     onClick={() => setTheme('midnight')}
                   ></button>
+                  <button 
+                    className={`theme-btn ${theme === 'custom' ? 'active' : ''}`} 
+                    style={{ background: 'linear-gradient(45deg, #ef4444, #f59e0b, #10b981, #3b82f6, #8b5cf6)', border: '1px solid var(--border-subtle)' }}
+                    title="Custom Theme Builder"
+                    onClick={() => setTheme('custom')}
+                  ></button>
+                  {theme === 'custom' && (
+                    <button 
+                      type="button"
+                      className="btn btn-secondary" 
+                      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '6px', marginLeft: '4px', border: '1px solid var(--border-gold)', minWidth: 'auto', height: '32px', width: '32px' }}
+                      onClick={() => setIsThemeCustomizerOpen(true)}
+                      title="Customize Global Colors"
+                    >
+                      ⚙️
+                    </button>
+                  )}
                 </div>
 
                 {activeUser && (
@@ -6358,11 +7815,13 @@
                   }}
                 />
               )}
-              
               {activeTab === 'inventory' && (
                 <InventoryPage 
                   inventory={inventory} 
                   setInventory={setInventory}
+                  stockHistory={stockHistory}
+                  setStockHistory={setStockHistory}
+                  activeUser={activeUser}
                   onLogSale={(product, quantity) => {
                     setInventory(prev => prev.map(p => p.id === product.id ? { ...p, stock: Math.max(0, p.stock - quantity) } : p));
                     
@@ -6393,11 +7852,23 @@
                 />
               )}
 
+              {activeTab === 'sales' && (
+                <ProductSalesPage 
+                  inventory={inventory} 
+                  setInventory={setInventory}
+                  clients={clients}
+                  setClients={setClients}
+                  setInvoices={setInvoices}
+                  setActiveTab={setActiveTab}
+                />
+              )}
+
               {activeTab === 'clients' && (
                 <ClientsPage 
                   clients={clients}
                   setClients={setClients}
                   repairs={repairs}
+                  invoices={invoices}
                 />
               )}
               
@@ -6414,6 +7885,14 @@
                   setInventory={setInventory}
                   activeUser={activeUser}
                   activeCompany={activeCompany}
+                />
+              )}
+
+              {activeTab === 'reports' && (
+                <ReportsPage 
+                  repairs={repairs}
+                  invoices={invoices}
+                  inventory={inventory}
                 />
               )}
               
@@ -6506,6 +7985,170 @@
                     onClick={handleSaveXeroConfig}
                   >
                     Save Credentials
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isThemeCustomizerOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '650px' }}>
+                <div className="modal-header">
+                  <h3>Theme Color Customizer</h3>
+                  <button className="close-btn" onClick={() => setIsThemeCustomizerOpen(false)}>&times;</button>
+                </div>
+                <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    Customize the global theme colors. These changes apply immediately to any tab where the <strong>'Custom'</strong> theme is selected.
+                  </p>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {/* Backgrounds */}
+                    <div>
+                      <h4 style={{ color: 'var(--accent-gold)', marginBottom: '12px', fontSize: '14px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>Background Colors</h4>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Primary Background</label>
+                        <input 
+                          type="color" 
+                          value={customColors.bgPrimary || defaultCustomColors.bgPrimary} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            bgPrimary: e.target.value
+                          }))}
+                        />
+                      </div>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Secondary Background</label>
+                        <input 
+                          type="color" 
+                          value={customColors.bgSecondary || defaultCustomColors.bgSecondary} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            bgSecondary: e.target.value
+                          }))}
+                        />
+                      </div>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Tertiary / Card Background</label>
+                        <input 
+                          type="color" 
+                          value={customColors.bgTertiary || defaultCustomColors.bgTertiary} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            bgTertiary: e.target.value
+                          }))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Text Typography */}
+                    <div>
+                      <h4 style={{ color: 'var(--accent-gold)', marginBottom: '12px', fontSize: '14px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>Typography Colors</h4>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Primary Text</label>
+                        <input 
+                          type="color" 
+                          value={customColors.textPrimary || defaultCustomColors.textPrimary} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            textPrimary: e.target.value
+                          }))}
+                        />
+                      </div>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Secondary Text</label>
+                        <input 
+                          type="color" 
+                          value={customColors.textSecondary || defaultCustomColors.textSecondary} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            textSecondary: e.target.value
+                          }))}
+                        />
+                      </div>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Muted Text</label>
+                        <input 
+                          type="color" 
+                          value={customColors.textMuted || defaultCustomColors.textMuted} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            textMuted: e.target.value
+                          }))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Accents */}
+                    <div>
+                      <h4 style={{ color: 'var(--accent-gold)', marginBottom: '12px', fontSize: '14px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>Accent Colors</h4>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Accent Gold / Core</label>
+                        <input 
+                          type="color" 
+                          value={customColors.accentGold || defaultCustomColors.accentGold} 
+                          onChange={(e) => {
+                            const newAccent = e.target.value;
+                            const glow = hexToRgba(newAccent, 0.15);
+                            const border = hexToRgba(newAccent, 0.45);
+                            setCustomColors(prev => ({
+                              ...prev,
+                              accentGold: newAccent,
+                              accentGoldGlow: glow,
+                              borderGold: border
+                            }));
+                          }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Accent Light (Hover)</label>
+                        <input 
+                          type="color" 
+                          value={customColors.accentGoldLight || defaultCustomColors.accentGoldLight} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            accentGoldLight: e.target.value
+                          }))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Borders */}
+                    <div>
+                      <h4 style={{ color: 'var(--accent-gold)', marginBottom: '12px', fontSize: '14px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>Border Colors</h4>
+                      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '12px' }}>Subtle Borders</label>
+                        <input 
+                          type="color" 
+                          value={customColors.borderSubtle || defaultCustomColors.borderSubtle} 
+                          onChange={(e) => setCustomColors(prev => ({
+                            ...prev,
+                            borderSubtle: e.target.value
+                          }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      if (confirm("Reset custom colors to default luxury gold palette?")) {
+                        setCustomColors({ ...defaultCustomColors });
+                      }
+                    }}
+                  >
+                    Reset to Defaults
+                  </button>
+                  <button 
+                    type="button"
+                    className="btn btn-primary" 
+                    onClick={() => setIsThemeCustomizerOpen(false)}
+                  >
+                    Close & Apply
                   </button>
                 </div>
               </div>
